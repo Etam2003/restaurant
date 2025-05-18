@@ -1,0 +1,91 @@
+<div class="reservation-list-container">
+  <div class="header">
+    <h1>Reservations for {{ restaurant?.name || 'Restaurant' }}</h1>
+    <button class="btn-secondary" routerLink="/admin/restaurants">
+      Back to Restaurants
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading reservations...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <div class="status-filter">
+      <label for="status-filter">Filter by Status:</label>
+      <select id="status-filter" [(ngModel)]="statusFilter" class="filter-select">
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+
+    <div *ngIf="getFilteredReservations().length === 0" class="empty-state">
+      <p>No reservations found for the selected filter.</p>
+    </div>
+
+    <div *ngIf="getFilteredReservations().length > 0" class="reservation-table-container">
+      <table class="reservation-table">
+        <thead>
+          <tr>
+            <th>Guest</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Party Size</th>
+            <th>Status</th>
+            <th>Contact</th>
+            <th>Special Requests</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let reservation of getFilteredReservations()">
+            <td>{{ reservation.guestName }}</td>
+            <td *ngIf="reservation.timeSlot">{{ getTimeSlotDate(reservation.timeSlot) }}</td>
+            <td *ngIf="reservation.timeSlot">{{ getTimeSlotStartTime(reservation.timeSlot) }}</td>
+            <td>{{ reservation.partySize }} guests</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(reservation.status)">
+                {{ reservation.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              <div class="contact-info">
+                <div><strong>Email:</strong> {{ reservation.guestEmail }}</div>
+                <div><strong>Phone:</strong> {{ reservation.guestPhone }}</div>
+              </div>
+            </td>
+            <td>
+              <div class="special-requests">
+                {{ reservation.specialRequests || 'None' }}
+              </div>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <div class="status-actions" *ngIf="reservation.status !== 'cancelled' && reservation.status !== 'completed'">
+                  <button class="btn-status confirm" *ngIf="reservation.status === 'pending'" (click)="updateReservationStatus(reservation, 'confirmed')">
+                    Confirm
+                  </button>
+                  <button class="btn-status cancel" (click)="updateReservationStatus(reservation, 'cancelled')">
+                    Cancel
+                  </button>
+                  <button class="btn-status complete" *ngIf="reservation.status !== 'pending'" (click)="updateReservationStatus(reservation, 'completed')">
+                    Complete
+                  </button>
+                </div>
+                <button class="btn-delete" (click)="deleteReservation(reservation._id || '')">
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

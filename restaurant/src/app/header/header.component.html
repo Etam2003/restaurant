@@ -1,0 +1,74 @@
+<header class="header">
+  <div class="container">
+    <div class="logo">
+      <a routerLink="/">ReserveTable</a>
+    </div>
+    <nav class="navigation">
+      <ul>
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+        <li><a routerLink="/restaurants" routerLinkActive="active">Restaurants</a></li>
+        
+        <ng-container *ngIf="user && user.isAdmin">
+          <li class="dropdown">
+            <a class="dropdown-toggle" (click)="toggleAdminMenu()">
+              Admin <span class="arrow" [class.open]="adminMenuOpen">▼</span>
+            </a>
+            <div class="dropdown-menu" [class.open]="adminMenuOpen">
+              <a routerLink="/admin" routerLinkActive="active">Dashboard</a>
+              <a routerLink="/admin/restaurants" routerLinkActive="active">Restaurants</a>
+            </div>
+          </li>
+        </ng-container>
+        
+        <ng-container *ngIf="user">
+          <li class="dropdown">
+            <a class="dropdown-toggle" (click)="toggleUserMenu()">
+              {{ user.name }} <span class="arrow" [class.open]="userMenuOpen">▼</span>
+            </a>
+            <div class="dropdown-menu" [class.open]="userMenuOpen">
+              <a routerLink="/profile" routerLinkActive="active">My Profile</a>
+              <a routerLink="/reservations" routerLinkActive="active">My Reservations</a>
+              <a (click)="logout()" class="logout-link">Logout</a>
+            </div>
+          </li>
+        </ng-container>
+        
+        <ng-container *ngIf="!user">
+          <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+          <li><a routerLink="/register" routerLinkActive="active">Register</a></li>
+        </ng-container>
+      </ul>
+    </nav>
+    
+    <div class="mobile-menu-toggle" (click)="toggleMobileMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <div class="mobile-menu" [class.open]="mobileMenuOpen">
+      <ul>
+        <li><a routerLink="/" (click)="closeMobileMenu()">Home</a></li>
+        <li><a routerLink="/restaurants" (click)="closeMobileMenu()">Restaurants</a></li>
+        
+        <ng-container *ngIf="user && user.isAdmin">
+          <li class="mobile-section-title">Admin</li>
+          <li><a routerLink="/admin" (click)="closeMobileMenu()">Dashboard</a></li>
+          <li><a routerLink="/admin/restaurants" (click)="closeMobileMenu()">Restaurants</a></li>
+        </ng-container>
+        
+        <ng-container *ngIf="user">
+          <li class="mobile-section-title">Account</li>
+          <li><a routerLink="/profile" (click)="closeMobileMenu()">My Profile</a></li>
+          <li><a routerLink="/reservations" (click)="closeMobileMenu()">My Reservations</a></li>
+          <li><a (click)="logout(); closeMobileMenu()">Logout</a></li>
+        </ng-container>
+        
+        <ng-container *ngIf="!user">
+          <li><a routerLink="/login" (click)="closeMobileMenu()">Login</a></li>
+          <li><a routerLink="/register" (click)="closeMobileMenu()">Register</a></li>
+        </ng-container>
+      </ul>
+    </div>
+  </div>
+</header>

@@ -1,0 +1,59 @@
+<div class="restaurant-list-container">
+    <div class="header">
+      <h1>My Restaurants</h1>
+      <button class="btn-primary" routerLink="/admin/restaurants/create">Add New Restaurant</button>
+    </div>
+    
+    <div *ngIf="loading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading restaurants...</p>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      <p>{{ error }}</p>
+    </div>
+    
+    <div *ngIf="!loading && !error && restaurants.length === 0" class="empty-state">
+      <p>You don't have any restaurants yet. Add your first restaurant to get started!</p>
+      <button class="btn-primary" routerLink="/admin/restaurants/create">Add New Restaurant</button>
+    </div>
+    
+    <div *ngIf="!loading && restaurants.length > 0" class="restaurant-grid">
+      <div *ngFor="let restaurant of restaurants" class="restaurant-card">
+        <div class="restaurant-header">
+          <h2>{{ restaurant.name }}</h2>
+          <div class="actions">
+            <button class="btn-icon" [routerLink]="['/admin/restaurants/edit', restaurant._id]" title="Edit">
+              ✏️
+            </button>
+            <button class="btn-icon" (click)="deleteRestaurant(restaurant._id || '')" title="Delete">
+              🗑️
+            </button>
+          </div>
+        </div>
+        
+        <div class="restaurant-details">
+          <p><strong>Address:</strong> {{ restaurant.address }}</p>
+          <p><strong>Phone:</strong> {{ restaurant.phone }}</p>
+          <p><strong>Email:</strong> {{ restaurant.email }}</p>
+        </div>
+        
+        <div class="restaurant-features">
+          <h3>Features</h3>
+          <ul>
+            <li *ngFor="let feature of restaurant.features">{{ feature }}</li>
+            <li *ngIf="restaurant.features.length === 0">No features listed</li>
+          </ul>
+        </div>
+        
+        <div class="restaurant-actions">
+          <button class="btn-secondary" [routerLink]="['/admin/timeslots', restaurant._id]">
+            Manage Time Slots
+          </button>
+          <button class="btn-secondary" [routerLink]="['/admin/reservations', restaurant._id]">
+            View Reservations
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

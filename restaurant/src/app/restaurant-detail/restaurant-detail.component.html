@@ -1,0 +1,144 @@
+<div class="restaurant-detail-container">
+  <button class="btn-back" (click)="goBack()">
+    ← Back to Restaurants
+  </button>
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading restaurant details...</p>
+  </div>
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+  <div *ngIf="!loading && restaurant" class="restaurant-content">
+    <div class="restaurant-header">
+      <div class="restaurant-image">
+        <span class="emoji">{{ foodEmoji }}</span>
+      </div>
+      <div class="restaurant-info">
+        <h1>{{ restaurant.name }}</h1>
+        <p class="address">{{ restaurant.address }}</p>
+        <p class="description">{{ restaurant.description }}</p>
+        <div class="contact-info">
+          <div class="contact-item">
+            <span class="icon">📞</span>
+            <span>{{ restaurant.phone }}</span>
+          </div>
+          <div class="contact-item">
+            <span class="icon">✉️</span>
+            <span>{{ restaurant.email }}</span>
+          </div>
+          <div class="contact-item" *ngIf="restaurant.website">
+            <span class="icon">🌐</span>
+            <a [href]="restaurant.website" target="_blank">{{ restaurant.website }}</a>
+          </div>
+        </div>
+        <div class="features">
+          <h3>Features</h3>
+          <div class="feature-tags">
+            <span *ngFor="let feature of restaurant.features" class="feature-tag">{{ feature }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="opening-hours">
+      <h2>Opening Hours</h2>
+      <div class="hours-grid">
+        <div *ngFor="let hour of restaurant.openingHours" class="hour-item">
+          <span class="day">{{ hour.day }}</span>
+          <span class="time">{{ hour.open }} - {{ hour.close }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reservation-section" *ngIf="user">
+      <h2>Make a Reservation</h2>
+      <div class="date-filter">
+        <label for="date-select">Select a date:</label>
+        <input type="date" id="date-select" [(ngModel)]="selectedDate" (change)="onDateChange()" [min]="minDate" class="date-input">
+      </div>
+      <div *ngIf="selectedDate && filteredTimeSlots.length === 0" class="no-slots">
+        <p>No available time slots for the selected date.</p>
+      </div>
+      <div *ngIf="filteredTimeSlots.length > 0" class="timeslot-cards">
+        <h3 *ngIf="selectedDate">Available Time Slots for {{ formatDate(selectedDate) }}</h3>
+        <div class="timeslot-grid">
+          <div *ngFor="let timeSlot of filteredTimeSlots" class="timeslot-card" [class.disabled]="timeSlot.availableSeats < 1" (click)="timeSlot.availableSeats > 0 && selectTimeSlot(timeSlot)">
+            <div class="timeslot-time">
+              {{ timeSlot.startTime }} - {{ timeSlot.endTime }}
+            </div>
+            <div class="timeslot-availability">
+              {{ timeSlot.availableSeats }} seats available
+            </div>
+            <button class="btn-reserve" [disabled]="timeSlot.availableSeats < 1" [class.disabled]="timeSlot.availableSeats < 1">
+              {{ timeSlot.availableSeats < 1 ? 'Fully Booked' : 'Reserve' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="login-prompt" *ngIf="!user">
+      <h2>Want to make a reservation?</h2>
+      <p>Please <a routerLink="/login">log in</a> or <a routerLink="/register">register</a> to make a reservation.</p>
+    </div>
+
+    <div class="reservation-form-container" *ngIf="reservationMode && selectedTimeSlot">
+      <div class="form-header">
+        <h2>Complete Your Reservation</h2>
+        <div class="selected-slot">
+          <strong>Selected Time:</strong> {{ formatDate(selectedTimeSlot.date) }}, {{ selectedTimeSlot.startTime }} - {{ selectedTimeSlot.endTime }}
+        </div>
+      </div>
+      <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()" class="reservation-form">
+        <div class="form-group">
+          <label for="guestName">Your Name *</label>
+          <input type="text" id="guestName" formControlName="guestName" class="form-control" [class.is-invalid]="reservationForm.get('guestName')?.invalid && reservationForm.get('guestName')?.touched">
+          <div class="invalid-feedback" *ngIf="reservationForm.get('guestName')?.invalid && reservationForm.get('guestName')?.touched">
+            Name is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="guestEmail">Email Address *</label>
+          <input type="email" id="guestEmail" formControlName="guestEmail" class="form-control" [class.is-invalid]="reservationForm.get('guestEmail')?.invalid && reservationForm.get('guestEmail')?.touched">
+          <div class="invalid-feedback" *ngIf="reservationForm.get('guestEmail')?.invalid && reservationForm.get('guestEmail')?.touched">
+            Valid email address is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="guestPhone">Phone Number *</label>
+          <input type="tel" id="guestPhone" formControlName="guestPhone" class="form-control" [class.is-invalid]="reservationForm.get('guestPhone')?.invalid && reservationForm.get('guestPhone')?.touched">
+          <div class="invalid-feedback" *ngIf="reservationForm.get('guestPhone')?.invalid && reservationForm.get('guestPhone')?.touched">
+            Phone number is required.
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="partySize">Number of Guests *</label>
+          <input type="number" id="partySize" formControlName="partySize" min="1" [max]="selectedTimeSlot.availableSeats" class="form-control" [class.is-invalid]="reservationForm.get('partySize')?.invalid && reservationForm.get('partySize')?.touched">
+          <div class="invalid-feedback" *ngIf="reservationForm.get('partySize')?.invalid && reservationForm.get('partySize')?.touched">
+            <span *ngIf="reservationForm.get('partySize')?.errors?.['required']">Number of guests is required.</span>
+            <span *ngIf="reservationForm.get('partySize')?.errors?.['min']">Must be at least 1 guest.</span>
+          </div>
+          <small>Maximum {{ selectedTimeSlot.availableSeats }} guests available for this time slot.</small>
+        </div>
+        <div class="form-group">
+          <label>Special Requests (Optional)</label>
+          <div class="special-requests-options">
+            <div *ngFor="let request of specialRequests" class="request-option" [class.selected]="request.selected" (click)="toggleSpecialRequest(request)">
+              {{ request.label }}
+            </div>
+          </div>
+          <input type="text" formControlName="specialRequests" class="form-control" placeholder="Other special requests or notes...">
+        </div>
+        <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+        <div class="alert alert-success" *ngIf="success">{{ success }}</div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" (click)="cancelReservation()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="reservationForm.invalid || submitting">
+            <span *ngIf="submitting" class="spinner-border spinner-border-sm"></span>
+            Confirm Reservation
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

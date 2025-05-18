@@ -1,0 +1,82 @@
+<div class="home-container">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>Find and Reserve Your Perfect Dining Experience</h1>
+      <p>Discover top restaurants and book a table in seconds</p>
+      <div class="hero-buttons">
+        <a routerLink="/restaurants" class="btn-primary">Browse Restaurants</a>
+        <a *ngIf="!user" routerLink="/login" class="btn-secondary">Sign In</a>
+        <a *ngIf="!user" routerLink="/register" class="btn-outline">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="welcome-section">
+      <h2 *ngIf="user">Welcome back, {{user.name}}!</h2>
+      <p *ngIf="user">Ready for your next dining adventure?</p>
+      <div *ngIf="user" class="user-actions">
+        <a routerLink="/profile" class="btn-link">View My Reservations</a>
+      </div>
+    </div>
+
+    <div class="featured-section">
+      <h2>Featured Restaurants</h2>
+      
+      <div *ngIf="loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading restaurants...</p>
+      </div>
+      
+      <div *ngIf="error" class="error-message">
+        <p>{{ error }}</p>
+      </div>
+
+      <div *ngIf="!loading && featuredRestaurants.length > 0" class="featured-grid">
+        <div *ngFor="let restaurant of featuredRestaurants" class="featured-card" [routerLink]="['/restaurant', restaurant._id]">
+          <div class="featured-image">
+            <span class="emoji">{{ getRandomEmoji(restaurant._id || '') }}</span>
+          </div>
+          <div class="featured-info">
+            <h3>{{ restaurant.name }}</h3>
+            <p class="featured-location">{{ restaurant.address }}</p>
+            <div class="featured-tags">
+              <span *ngFor="let feature of restaurant.features.slice(0, 3)" class="featured-tag">{{ feature }}</span>
+            </div>
+            <button class="btn-view">View Details</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="view-all-link">
+        <a routerLink="/restaurants">View All Restaurants →</a>
+      </div>
+    </div>
+
+    <div class="how-it-works">
+      <h2>How It Works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">🔍</div>
+          <h3>Find a Restaurant</h3>
+          <p>Browse our selection of top-rated restaurants in your area</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">📆</div>
+          <h3>Choose a Time</h3>
+          <p>Select a date and time that works best for your schedule</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">✅</div>
+          <h3>Make a Reservation</h3>
+          <p>Book your table in seconds and receive instant confirmation</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">🍽️</div>
+          <h3>Enjoy Your Meal</h3>
+          <p>Arrive at the restaurant and enjoy a wonderful dining experience</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

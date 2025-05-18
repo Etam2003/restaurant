@@ -1,0 +1,114 @@
+<div class="restaurant-form-container">
+    <div class="header">
+        <h1>{{ isEditMode ? 'Edit Restaurant' : 'Add New Restaurant' }}</h1>
+        <button type="button" class="btn-secondary" routerLink="/admin/restaurants">Back to List</button>
+    </div>
+
+    <div *ngIf="loading" class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading restaurant data...</p>
+    </div>
+
+    <div *ngIf="error" class="error-message">
+        <p>{{ error }}</p>
+    </div>
+
+    <form *ngIf="!loading" [formGroup]="restaurantForm" (ngSubmit)="onSubmit()" class="restaurant-form">
+        <div class="form-group">
+            <label for="name">Restaurant Name *</label>
+            <input type="text" id="name" formControlName="name" class="form-control"
+                [ngClass]="{'invalid': restaurantForm.get('name')?.invalid && restaurantForm.get('name')?.touched}">
+            <div *ngIf="restaurantForm.get('name')?.invalid && restaurantForm.get('name')?.touched" class="error-text">
+                Restaurant name is required.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address *</label>
+            <input type="text" id="address" formControlName="address" class="form-control"
+                [ngClass]="{'invalid': restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched}">
+            <div *ngIf="restaurantForm.get('address')?.invalid && restaurantForm.get('address')?.touched"
+                class="error-text">
+                Address is required.
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description *</label>
+            <textarea id="description" formControlName="description" class="form-control" rows="4"
+                [ngClass]="{'invalid': restaurantForm.get('description')?.invalid && restaurantForm.get('description')?.touched}"></textarea>
+            <div *ngIf="restaurantForm.get('description')?.invalid && restaurantForm.get('description')?.touched"
+                class="error-text">
+                Description is required.
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group half-width">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" formControlName="phone" class="form-control"
+                    [ngClass]="{'invalid': restaurantForm.get('phone')?.invalid && restaurantForm.get('phone')?.touched}">
+                <div *ngIf="restaurantForm.get('phone')?.invalid && restaurantForm.get('phone')?.touched"
+                    class="error-text">
+                    Phone number is required.
+                </div>
+            </div>
+
+            <div class="form-group half-width">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" formControlName="email" class="form-control"
+                    [ngClass]="{'invalid': restaurantForm.get('email')?.invalid && restaurantForm.get('email')?.touched}">
+                <div *ngIf="restaurantForm.get('email')?.invalid && restaurantForm.get('email')?.touched"
+                    class="error-text">
+                    Valid email is required.
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="website">Website</label>
+            <input type="url" id="website" formControlName="website" class="form-control">
+        </div>
+
+        <div class="form-section">
+            <label>Restaurant Features</label>
+            <div formArrayName="features" class="feature-checkboxes">
+                <div *ngFor="let feature of featureOptions; let i = index" class="feature-checkbox">
+                    <input type="checkbox" [id]="'feature-' + i" [formControlName]="i">
+                    <label [for]="'feature-' + i">{{ feature }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label>Opening Hours</label>
+            <div formArrayName="openingHours">
+                <div *ngFor="let openingHour of openingHoursArray.controls; let i = index" [formGroupName]="i"
+                    class="opening-hour-row">
+                    <div class="day-name">{{ openingHour.get('day')?.value }}</div>
+                    <div class="time-inputs">
+                        <div class="time-input">
+                            <label for="open-{{i}}">Open</label>
+                            <input type="time" [id]="'open-' + i" formControlName="open" class="form-control">
+                        </div>
+                        <div class="time-input">
+                            <label for="close-{{i}}">Close</label>
+                            <input type="time" [id]="'close-' + i" formControlName="close" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="submitting">
+                <span *ngIf="submitting">
+                    <div class="spinner-small"></div>
+                    Saving...
+                </span>
+                <span *ngIf="!submitting">{{ isEditMode ? 'Update Restaurant' : 'Create Restaurant' }}</span>
+            </button>
+            <button type="button" class="btn-secondary" routerLink="/admin/restaurants">Cancel</button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,59 @@
+<div class="restaurant-list-container">
+  <div class="header">
+    <h1>Find Your Perfect Restaurant</h1>
+    <div class="search-filters">
+      <div class="search-box">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="searchRestaurants()" 
+          placeholder="Search restaurants by name, description or location" 
+          class="search-input"
+        >
+      </div>
+      <div class="feature-filter">
+        <input 
+          type="text" 
+          [(ngModel)]="filterFeature" 
+          (input)="searchRestaurants()" 
+          placeholder="Filter by feature (e.g. 'Wifi', 'Outdoor')" 
+          class="filter-input"
+        >
+      </div>
+      <button class="btn-clear" *ngIf="searchTerm || filterFeature" (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading restaurants...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && filteredRestaurants.length === 0" class="empty-state">
+    <p>No restaurants found matching your criteria.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredRestaurants.length > 0" class="restaurant-grid">
+    <div *ngFor="let restaurant of filteredRestaurants" class="restaurant-card" (click)="viewRestaurant(restaurant._id || '')">
+      <div class="restaurant-image">
+        <span class="emoji">{{ getRandomEmoji(restaurant._id || '') }}</span>
+      </div>
+      <div class="restaurant-info">
+        <h2>{{ restaurant.name }}</h2>
+        <p class="address">{{ restaurant.address }}</p>
+        <p class="description">{{ restaurant.description }}</p>
+        <div class="features">
+          <span *ngFor="let feature of restaurant.features.slice(0, 3)" class="feature-tag">{{ feature }}</span>
+          <span *ngIf="restaurant.features.length > 3" class="feature-tag">+{{ restaurant.features.length - 3 }} more</span>
+        </div>
+        <button class="btn-reserve">View Details & Reserve</button>
+      </div>
+    </div>
+  </div>
+</div>

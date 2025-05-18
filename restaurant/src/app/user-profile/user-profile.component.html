@@ -1,0 +1,79 @@
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>My Account</h1>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-section">
+            <h2>Personal Information</h2>
+
+            <div *ngIf="loading" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading your profile...</p>
+            </div>
+
+            <form *ngIf="!loading" [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" formControlName="name" class="form-control"
+                        [ngClass]="{'is-invalid': submitted && f['name'].errors}" />
+                    <div *ngIf="submitted && f['name'].errors" class="invalid-feedback">
+                        <div *ngIf="f['name'].errors['required']">Name is required</div>
+                    </div>
+                </div>
+                <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+                <div *ngIf="success" class="alert alert-success">{{success}}</div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary" [disabled]="updating">
+                        <span *ngIf="updating" class="spinner-border spinner-border-sm"></span>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="profile-section">
+            <div class="section-header">
+                <h2>My Reservations</h2>
+                <button class="btn-link" (click)="viewAllReservations()">View All</button>
+            </div>
+
+            <div *ngIf="loadingReservations" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading your reservations...</p>
+            </div>
+
+            <div *ngIf="reservationError" class="alert alert-danger">
+                {{ reservationError }}
+            </div>
+
+            <div *ngIf="!loadingReservations && reservations.length === 0" class="empty-state">
+                <p>You don't have any reservations yet.</p>
+                <a routerLink="/restaurants" class="btn-primary">Browse Restaurants</a>
+            </div>
+
+            <div *ngIf="!loadingReservations && reservations.length > 0" class="reservation-list">
+                <div *ngFor="let reservation of reservations.slice(0, 3)" class="reservation-item">
+                    <div class="reservation-date">
+                        <div [ngClass]="getStatusClass(reservation.status)" class="status-dot"></div>
+                        {{ getReservationDate(reservation) }}
+                    </div>
+
+                    <div class="reservation-details">
+                        <h3>{{ getRestaurantName(reservation) }}</h3>
+                        <p>{{ getTimeSlotStartTime(reservation) }} • {{ reservation.partySize }} guests</p>
+                        <p class="reservation-status">{{ reservation.status | titlecase }}</p>
+                    </div>
+
+                    <div class="reservation-actions">
+                        <button *ngIf="reservation.status === 'pending' || reservation.status === 'confirmed'"
+                            class="btn-cancel" (click)="cancelReservation(reservation._id || '')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

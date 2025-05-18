@@ -1,0 +1,77 @@
+<div class="timeslot-list-container">
+  <div class="header">
+    <h1>Time Slots for {{ restaurant?.name || 'Restaurant' }}</h1>
+    <div class="header-actions">
+      <button class="btn-primary" (click)="navigateToCreateTimeSlot()">
+        Add New Time Slot
+      </button>
+      <button class="btn-secondary" routerLink="/admin/restaurants">
+        Back to Restaurants
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-spinner">
+    <div class="spinner"></div>
+    <p>Loading time slots...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error">
+    <div class="date-filter">
+      <label for="date-filter">Filter by Date:</label>
+      <input type="date" id="date-filter" [(ngModel)]="selectedDate" (change)="onDateChange()">
+    </div>
+
+    <div *ngIf="filteredTimeSlots.length === 0" class="empty-state">
+      <p>No time slots available for the selected date.</p>
+      <button class="btn-primary" (click)="navigateToCreateTimeSlot()">
+        Add New Time Slot
+      </button>
+    </div>
+
+    <div *ngIf="filteredTimeSlots.length > 0" class="timeslot-grid">
+      <div *ngFor="let timeSlot of filteredTimeSlots" class="timeslot-card"
+        [ngClass]="{'inactive': !timeSlot.isActive}">
+        <div class="timeslot-header">
+          <div class="time-range">
+            {{ timeSlot.startTime }} - {{ timeSlot.endTime }}
+          </div>
+          <div class="status" [ngClass]="{'active': timeSlot.isActive, 'inactive': !timeSlot.isActive}">
+            {{ timeSlot.isActive ? 'Active' : 'Inactive' }}
+          </div>
+        </div>
+
+        <div class="timeslot-details">
+          <p><strong>Date:</strong> {{ formatDate(timeSlot.date) }}</p>
+          <p><strong>Capacity:</strong> {{ timeSlot.capacity }} people</p>
+          <p><strong>Available Seats:</strong> {{ timeSlot.availableSeats }} seats</p>
+          <p><strong>Status:</strong> {{ timeSlot.isActive ? 'Active' : 'Inactive' }}</p>
+        </div>
+
+        <div class="timeslot-actions">
+          <button class="btn-toggle" (click)="toggleTimeSlotStatus(timeSlot)" [ngClass]="{
+          'activate': !timeSlot.isActive, 
+          'deactivate': timeSlot.isActive,
+          'disabled': !timeSlot.isActive && timeSlotReservations[timeSlot._id!]}"
+          [disabled]="!timeSlot.isActive && timeSlotReservations[timeSlot._id!]">
+            {{ timeSlot.isActive ? 'Deactivate' : 'Activate' }}
+          </button>
+
+          <button class="btn-secondary" [routerLink]="['/admin/timeslots/edit', timeSlot._id]"
+            [disabled]="timeSlotReservations[timeSlot._id!]" [class.disabled]="timeSlotReservations[timeSlot._id!]">
+            Edit
+          </button>
+
+          <button class="btn-danger" (click)="deleteTimeSlot(timeSlot._id || '')"
+            [disabled]="timeSlotReservations[timeSlot._id!]" [class.disabled]="timeSlotReservations[timeSlot._id!]">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
